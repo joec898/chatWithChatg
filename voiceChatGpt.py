@@ -28,7 +28,9 @@ voices = speaker.getProperty('voices')
 speaker.setProperty('voice', voices[1].id)
 
 # Init recognizer
-r = sr.Recognizer()
+rec = sr.Recognizer()
+mic = sr.Microphe()
+#mic = sr.Microphone(device_index=1)
 
 model = 'gpt-3.5-turbo'
 msges = [
@@ -68,21 +70,21 @@ def typing_simulation(line):
 async def voice_input():
     audio = None
     txt = None
-    with sr.Microphone() as src:
-        r.adjust_for_ambient_noise(src, duration=0.2)
+    with mic as src:
+        rec.adjust_for_ambient_noise(src, duration=0.2)
+
         #r.adjust_for_ambient_noise(src)
-        audio = None
-        txt = None
         while audio == None:
-            audio = r.listen(src)
+            audio = rec.listen(src)
 
         if audio != None:
             try:
-                txt = r.recognize_google(audio)
+                txt = rec.recognize_google(audio)
                 txt = txt.lower()
             except Exception as e:
                 print("Oops! Something goes wrong: " + e)
-
+            finally:
+                txt = None
         return txt
 
 while True:
