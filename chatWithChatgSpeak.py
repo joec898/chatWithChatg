@@ -71,21 +71,6 @@ def typing_simulation(line):
     print('', end='\n')
 
 
-def chat_with_chatgpt_url(input):
-    res = requests.post(f"https://api.openai.com/v1/completions",
-                        headers={
-                            "Content-Type": "application/json",
-                            "Authorization": f"Bearer {api_key}"
-                        },
-                        json={
-                            "model": model,
-                            "prompt": input,
-                            "max_tokens": 100,
-                            "instruction": "Fix the spelling mistakes"
-                        }).json()
-    return res['choices'][0]['text']
-
-
 def process_response_multprocesses(strings):
     for l in strings:
         p1 = Process(target=speak_it(l))

@@ -14,7 +14,6 @@ import pyttsx3
 import speech_recognition as sr
 import asyncio
 
-
 def main():
     with open('cg_key.txt', 'r') as key:
         data = key.read().strip()
@@ -43,53 +42,52 @@ class voice_chat_gpt:
         #mic = sr.Microphone(device_index=1)
 
         model = 'gpt-3.5-turbo'
-        msges = [
+        contents = [
             {"role": "system", "content": "You’re a kind helpful assistant"}
         ]
 
         while True:
             print("Speak to your microphone with your question.")
 
-            txt = self.voice_input(rec, mic)
+            message = self.voice_input(rec, mic)
             #print(f"txt = [{txt}].")
 
-            if txt != None:
-                txt = txt.lower()
+            if message != None:
+                message = message.lower()
                 print("You said: ", txt)
-                if txt == 'i am done' or txt == "i'am done" or txt == 'done':
+                if message == 'i am done' or message == "i'am done" or message == 'done':
                     self.speak_it("Good bye")
                     txt = None
                     quit()
 
-                response = self.chat_with_chatgpt(msges, model, txt)
+                response = self.chat_with_chatgpt(contents, model, message)
                 response = response.split("\n")
                 print("Chartgpt: ", end='\n')
                 for l in response:
-                    self.speak_it(speaker, l)
-                    # print(l)
-                    # typing_simulation(l)
+                    self.print_vocalize(speaker, l)
+
                 txt = None
 
             #print('', end='\n')
 
-    def chat_with_chatgpt(self, msges, model, input):
-        msges.append({"role": "user", "content": input})
+    def chat_with_chatgpt(self, contents, model, input):
+        contents.append({"role": "user", "content": input})
         completion = ai.ChatCompletion.create(
             model=model,
             max_tokens=100,
-            messages=msges
+            messages=contents
         )
         chat_response = completion.choices[0].message.content
 
         # use the assistant role to store prev responses, which serves a ref for answer to next question
-        msges.append({"role": "assistant", "content": chat_response})
+        contents.append({"role": "assistant", "content": chat_response})
 
         return chat_response
 
-    def speak_it(self, speaker, txt):
-        speaker.say(txt)
+    def print_vocalize(self, speaker, phrase):
+        speaker.say(phrase)
         speaker.runAndWait()
-        print(txt)
+        print(phrase)
 
     def typing_simulation(self, line):
         for r in line:

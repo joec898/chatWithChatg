@@ -7,6 +7,7 @@ Created on Sun Apr 2 11:56:32 2023
 @author: JC
 """
 
+import requests
 import time
 import sys
 import openai

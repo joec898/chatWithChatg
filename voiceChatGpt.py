@@ -33,27 +33,27 @@ mic = sr.Microphe()
 #mic = sr.Microphone(device_index=1)
 
 model = 'gpt-3.5-turbo'
-msges = [
+contents = [
     {"role": "system", "content": "You’re a kind helpful assistant"}
 ]
 
 
 def chat_with_chatgpt(input):
-    msges.append({"role": "user", "content": input})
+    contents.append({"role": "user", "content": input})
     completion = openai.ChatCompletion.create(
         model=model,
         max_tokens=100,
-        messages=msges
+        messages=contents
     )
     chat_response = completion.choices[0].message.content
 
     # use the assistant role to store prev responses, which serves a ref for answer to next question
-    msges.append({"role": "assistant", "content": chat_response})
+    contents.append({"role": "assistant", "content": chat_response})
 
     return chat_response
 
 
-def speak_it(txt):
+def print_vocalize(txt):
     speaker.say(txt)
     speaker.runAndWait()
     print(txt)
@@ -69,7 +69,7 @@ def typing_simulation(line):
 
 async def voice_input():
     audio = None
-    txt = None
+    message = None
     with mic as src:
         rec.adjust_for_ambient_noise(src, duration=0.2)
 
@@ -79,33 +79,32 @@ async def voice_input():
 
         if audio != None:
             try:
-                txt = rec.recognize_google(audio)
-                txt = txt.lower()
+                message = rec.recognize_google(audio)
+                message = txt.lower()
             except Exception as e:
                 print("Oops! Something goes wrong: " + e)
             finally:
-                txt = None
-        return txt
+                message = None
+        return message
 
 while True:
     print("Speak to your microphone with your question.")
-    txt = asyncio.run(voice_input())
+    message = asyncio.run(voice_input())
     #print(f"txt = [{txt}].")
 
-    if txt != None:
-        print("You said: ", txt)
-        if txt == 'i am done' or txt == "i'am done" or txt == 'done':
-            speak_it("Good bye")
-            txt = None
+    if message != None:
+        print("You said: ", message)
+        if message == 'i am done' or message == "i'am done" or message == 'done':
+            print_vocalize("Good bye")
+            message = None
             quit()
 
-        response = chat_with_chatgpt(txt)
+        response = chat_with_chatgpt(message)
         response = response.split("\n")
         print("Chartgpt: ", end='\n')
         for l in response:
-            speak_it(l)
-            #print(l)
-            # typing_simulation(l)
+            print_vocalize(l)
+
         txt = None
 
     #print('', end='\n')
